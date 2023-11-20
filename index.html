@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/register.js"></script>
+  <title>LAUNDRY</title>
+
+</head>
+<style>
+  table {
+    border-collapse: collapse;
+  }
+
+  tr {
+    border-bottom: 1px sandybrown;
+  }
+</style>
+
+<body style="background-color: silver;">
+  <h1>LAUNDRY SHOES</h1>
+
+  <fieldset>
+    <legend>Input Barang</legend>
+    <label for="pilihbarang">Pilih Barang</label>
+    <select id="input_barang">
+      <option value="sneakers">Sneakers</option>
+      <option value="sepatu gunung">Sepatu Gunung</option>
+      <option value="sepatu olahraga">Sepatu Olahraga</option>
+      <option value="sepatu boots">Sepatu Boots</option>
+    </select>
+    <br>
+    <label for="pilih">Jumlah Barang</label>
+    <input type="number" name="total" placeholder="Inputkan jumlah barang...">
+    <br> <input type="button" onclick="addBarang()" value="Tambah">
+  </fieldset>
+
+  <div style="background-color: rgb(176, 164, 159); width: 50%; height: max-content; margin: auto; padding: 10px;">
+    <h2 style="padding-top: 10px;">
+      <center>Bukti Transaksi</center>
+    </h2>
+    <table id="listBarang" cellpadding="10">
+
+    </table>
+    Jumlah Bayar : <input type="number" id="uang" onkeyup="tampilKembalian()">
+    <br>
+    <br>
+    Kembalian : <input type="number" id="kembalian" disabled>
+
+    <h2></h2><br>
+  </div>
+
+  <script>
+    var dataBarang = [
+    ];
+    var total = 0;
+
+    function checkDiskon() {
+      var total = 0;
+      dataBarang.forEach((item, index) => {
+        if (item.nama == "sepatu gunung" && item.jumlah > 2) {
+          total += item.total;
+        } else if (item.nama == "sepatu boots" && item.jumlah > 3) {
+          total += item.total;
+        }
+      });
+
+      return total;
+    }
+    function tampilBarang() {
+      document.getElementById("listBarang").innerHTML = "";
+      document.getElementById("listBarang").innerHTML += "<tr><th>Nama Barang</th><th>Jumlah</th><th>Harga</th><th>Total</th><th>Aksi</th></tr>";
+      var total = 0;
+      var diskon = 0;
+      dataBarang.forEach((item, index) => {
+        document.getElementById("listBarang").innerHTML += `
+        <tr>
+            <td>${item.nama}</td>
+            <td>${item.jumlah}</td>
+            <td>${item.harga}</td>
+            <td>${item.total}</td>
+            <td><button onclick="hapusBarang(${index})">Hapus</button> | <button onclick="editBarang(${index})">Edit</button></td>
+        </tr>
+        `;
+        total += item.total;
+        diskon += check_diskon(item.nama, item.jumlah);
+        this.total = total - diskon;
+
+
+      });
+
+
+
+      document.getElementById("listBarang").innerHTML += `
+        <tr>
+            <td colspan="3"><b>Diskon</b></td>
+            <td>${diskon}</td>
+        </tr>
+    `;
+
+      document.getElementById("listBarang").innerHTML += `
+        <tr>
+            <td colspan="3"><b>Total</b></td>
+            <td>${total - diskon}</td>
+        </tr>
+    `;
+    }
+
+    function tampilKembalian() {
+      var uang = document.getElementById("uang").value;
+      var total = this.total;
+      var kembalian = uang - total;
+      document.getElementById("kembalian").value = kembalian;
+    }
+
+    function addBarang() {
+      var nama = document.getElementById("input_barang").value;
+      var jumlah = document.getElementsByName("total")[0].value;
+      var harga = 0;
+      var total = 0;
+
+      if (nama == "sneakers") {
+        harga = 30000;
+      } else if (nama == "sepatu gunung") {
+        harga = 40000;
+      } else if (nama == "sepatu olahraga") {
+        harga = 25000;
+      } else if (nama == "sepatu boots") {
+        harga = 50000;
+      }
+
+      const index = dataBarang.findIndex(function (item) {
+        return item.nama == nama;
+      });
+
+      if (index >= 0) {
+        dataBarang[index].jumlah = parseInt(dataBarang[index].jumlah) + parseInt(jumlah);
+        dataBarang[index].total = parseInt(dataBarang[index].total) + parseInt(jumlah) * parseInt(harga);
+        tampilBarang();
+        return;
+      }
+
+      total = jumlah * harga;
+
+      dataBarang.push({
+        nama: nama,
+        jumlah: jumlah,
+        harga: harga,
+        total: total
+      });
+
+      tampilBarang();
+    }
+
+    function check_diskon(namaBarang, jumlah) {
+      const i = dataBarang.findIndex(function (item) {
+        return item.nama == namaBarang;
+      });
+
+      if (i >= 0) {
+        var total = 0;
+        if (namaBarang == "sepatu gunung" && jumlah > 5) {
+          total = 5000
+          return total;
+        } else if (namaBarang == "sepatu boots" && jumlah > 3) {
+          total = 10000;
+          return total;
+        }
+      }
+
+      return false;
+    }
+
+    function hapusBarang(index) {
+      dataBarang.splice(index, 1);
+      tampilBarang();
+    }
+
+    function editBarang(index) {
+      var jumlah = prompt("Masukkan jumlah barang");
+      var total = 0;
+      var harga = dataBarang[index].harga;
+
+      total = jumlah * harga;
+
+      dataBarang[index].nama = dataBarang[index].nama;
+      dataBarang[index].jumlah = jumlah;
+      dataBarang[index].harga = harga;
+      dataBarang[index].total = total;
+
+      tampilBarang();
+    }
+  </script>
+</body>
+
+</html>
